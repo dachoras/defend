@@ -35,16 +35,16 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
 
     let drone_points = if state.helper_time > 0 {
         let px = state.player_x;
-        let left = format!("{},91.5 {},93.5 {},93.5", px - 5.5, px - 6.7, px - 4.3);
-        let right = format!("{},91.5 {},93.5 {},93.5", px + 5.5, px + 4.3, px + 6.7);
-        Some((left, right))
+        Some((
+            format!("{},91.5 {},93.5 {},93.5", px - 5.5, px - 6.7, px - 4.3),
+            format!("{},91.5 {},93.5 {},93.5", px + 5.5, px + 4.3, px + 6.7),
+        ))
     } else {
         None
     };
 
     let powerup_points = if state.powerup_type > 0 {
-        let px = state.powerup_x;
-        let py = state.powerup_y;
+        let (px, py) = (state.powerup_x, state.powerup_y);
         let pts = format!(
             "{},{} {},{} {},{} {},{}",
             px,
@@ -98,8 +98,10 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
     };
 
     let boss_health_bar_width = if let Some(bh) = state.boss_health {
-        let pct = bh as f64 / state.boss_max_health as f64;
-        Some(format!("{}", pct * 50.0))
+        Some(format!(
+            "{}",
+            (bh as f64 / state.boss_max_health as f64) * 50.0
+        ))
     } else {
         None
     };
@@ -114,27 +116,15 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
                 </defs>
                 <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
-                // Render background stars (parallax dust)
                 {
                     for state.stars.iter().map(|star| {
                         let opacity = 0.15 + (star.speed * 0.5);
-                        let style = format!("opacity: {}; fill: #ffffff;", opacity);
-                        html! {
-                            <circle
-                                cx={star.x.to_string()}
-                                cy={star.y.to_string()}
-                                r={star.size.to_string()}
-                                style={style}
-                            />
-                        }
+                        html! { <circle cx={star.x.to_string()} cy={star.y.to_string()} r={star.size.to_string()} style={format!("opacity: {}; fill: #ffffff;", opacity)} /> }
                     })
                 }
 
                 if let Some(points) = ship_points {
-                    <polygon
-                        points={points}
-                        class="neon-player-ship"
-                    />
+                    <polygon points={points} class="neon-player-ship" />
                 }
 
                 if let Some((left, right)) = drone_points {
@@ -147,12 +137,7 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
                 }
 
                 if let Some((r, orb_class)) = charge_orb {
-                    <circle
-                        cx={state.player_x.to_string()}
-                        cy="88"
-                        r={r.to_string()}
-                        class={orb_class}
-                    />
+                    <circle cx={state.player_x.to_string()} cy="88" r={r.to_string()} class={orb_class} />
                 }
 
                 if state.beam_time > 0 {
@@ -176,63 +161,30 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
                     <text x="50" y="3" fill="#ef4444" font-size="2" font-family="monospace" text-anchor="middle" class="neon-boss-label">{ "BOSS THREAT" }</text>
                 }
 
-                // Render lasers (cyan neon pulses or massive charge blasts)
                 {
                     for state.lasers.iter().map(|laser| {
                         if laser.is_charge_shot {
-                            html! {
-                                <circle
-                                    cx={laser.x.to_string()}
-                                    cy={laser.y.to_string()}
-                                    r={laser.radius.to_string()}
-                                    class="neon-charge-shot"
-                                />
-                            }
+                            html! { <circle cx={laser.x.to_string()} cy={laser.y.to_string()} r={laser.radius.to_string()} class="neon-charge-shot" /> }
                         } else {
-                             html! {
-                                 <line
-                                     x1={laser.x.to_string()}
-                                     y1={laser.y.to_string()}
-                                     x2={(laser.x - laser.vx * 1.5).to_string()}
-                                     y2={(laser.y - laser.vy * 1.5).to_string()}
-                                     class="neon-laser"
-                                 />
-                             }
+                            html! { <line x1={laser.x.to_string()} y1={laser.y.to_string()} x2={(laser.x - laser.vx * 1.5).to_string()} y2={(laser.y - laser.vy * 1.5).to_string()} class="neon-laser" /> }
                         }
                     })
                 }
 
-                // Render threats (neon red/orange polygons/diamonds)
                 {
                     for state.threats.iter().map(|threat| {
-                        let tx = threat.x;
-                        let ty = threat.y;
-                        let s = threat.size;
-                        let points = format!("{},{} {},{} {},{} {},{}", tx, ty - s, tx + s, ty, tx, ty + s, tx - s, ty);
-                        html! {
-                            <polygon
-                                points={points}
-                                class="neon-threat"
-                            />
+                        if threat.is_bullet {
+                            html! { <line x1={threat.x.to_string()} y1={threat.y.to_string()} x2={threat.x.to_string()} y2={(threat.y + 2.5).to_string()} class="neon-enemy-bullet" /> }
+                        } else {
+                            let (tx, ty, s) = (threat.x, threat.y, threat.size);
+                            html! { <polygon points={format!("{},{} {},{} {},{} {},{}", tx, ty - s, tx + s, ty, tx, ty + s, tx - s, ty)} class="neon-threat" /> }
                         }
                     })
                 }
 
-                // Render explosion particles (yellow/orange sparks fading out)
                 {
                     for state.particles.iter().map(|p| {
-                        let opacity = p.life;
-                        let radius = 0.6 * p.life;
-                        let style = format!("opacity: {}", opacity);
-                        html! {
-                            <circle
-                                cx={p.x.to_string()}
-                                cy={p.y.to_string()}
-                                r={radius.to_string()}
-                                style={style}
-                                class="neon-particle"
-                            />
-                        }
+                        html! { <circle cx={p.x.to_string()} cy={p.y.to_string()} r={(0.6 * p.life).to_string()} style={format!("opacity: {}", p.life)} class="neon-particle" /> }
                     })
                 }
             </svg>

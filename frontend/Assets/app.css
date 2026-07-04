@@ -471,6 +471,13 @@ main {
     letter-spacing: 0.5px;
 }
 
+.neon-enemy-bullet {
+    stroke: #f59e0b;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 5px #ef4444);
+}
+
 /* Hide the touch dpad/buttons on devices with a mouse */
 @media (pointer: fine) {
     .btn-touch {
