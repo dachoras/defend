@@ -12,7 +12,10 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
 
     let ship_points = if state.status == GameStatus::Playing {
         let px = state.player_x;
-        Some(format!("{},88 {},94 {},91 {},94", px, px - 4.0, px, px + 4.0))
+        Some(format!(
+            "{},87 {},89 {},91 {},93 {},95 {},93 {},95 {},93 {},95 {},93 {},95 {},93 {},91 {},89",
+            px, px - 1.0, px - 1.0, px - 4.0, px - 4.0, px - 1.0, px - 1.0, px, px + 1.0, px + 1.0, px + 4.0, px + 4.0, px + 1.0, px + 1.0
+        ))
     } else {
         None
     };
