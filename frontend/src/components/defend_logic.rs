@@ -4,13 +4,17 @@
 #[rustfmt::skip]
 pub enum GameStatus { NotStarted, Playing, Lost }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
+#[rustfmt::skip]
+pub enum ThreatType { Asteroid, Scout, Bullet }
+
 #[derive(Clone, Debug, PartialEq)]
 #[rustfmt::skip]
 pub struct Laser { pub x: f64, pub y: f64, pub vx: f64, pub vy: f64, pub is_charge_shot: bool, pub radius: f64 }
 
 #[derive(Clone, Debug, PartialEq)]
 #[rustfmt::skip]
-pub struct Threat { pub x: f64, pub y: f64, pub speed: f64, pub size: f64, pub is_bullet: bool }
+pub struct Threat { pub x: f64, pub y: f64, pub speed: f64, pub size: f64, pub kind: ThreatType }
 
 #[derive(Clone, Debug, PartialEq)]
 #[rustfmt::skip]
@@ -122,7 +126,7 @@ impl GameState {
         if let Some(mut bh) = self.boss_health {
             self.boss_x += self.boss_vx;
             if self.boss_x > 90.0 || self.boss_x < 10.0 { self.boss_vx = -self.boss_vx; }
-            if self.ticks % 40 == 0 { self.threats.push(Threat { x: self.boss_x, y: 17.0, speed: 1.2, size: 1.0, is_bullet: true }); }
+            if self.ticks % 40 == 0 { self.threats.push(Threat { x: self.boss_x, y: 17.0, speed: 1.2, size: 1.0, kind: ThreatType::Bullet }); }
             let mut hit_lasers = std::collections::HashSet::new();
             let mut explosions = Vec::new();
             for (idx, l) in self.lasers.iter().enumerate() {
@@ -142,20 +146,20 @@ impl GameState {
             let old_lasers = std::mem::take(&mut self.lasers);
             self.lasers = old_lasers.into_iter().enumerate().filter(|(i, _)| !hit_lasers.contains(i)).map(|(_, l)| l).collect();
         }
-        let mut bullet = None;
         if self.boss_health.is_none() {
             let spawn_interval = (35 - (self.wave as i32 * 2)).max(10) as u64;
             if self.ticks.is_multiple_of(spawn_interval) {
-                let x = js_sys::Math::random() * 90.0 + 5.0;
-                self.threats.push(Threat { x, y: 0.0, speed: js_sys::Math::random() * 0.4 + 0.3 + (self.wave as f64 * 0.05), size: js_sys::Math::random() * 2.0 + 2.0, is_bullet: false });
+                let (x, is_s) = (js_sys::Math::random() * 90.0 + 5.0, js_sys::Math::random() > 0.5);
+                let (spd, sz, k) = if is_s { (js_sys::Math::random() * 0.35 + 0.45 + (self.wave as f64 * 0.05), 2.2, ThreatType::Scout) } else { (js_sys::Math::random() * 0.25 + 0.25 + (self.wave as f64 * 0.04), 3.0, ThreatType::Asteroid) };
+                self.threats.push(Threat { x, y: 0.0, speed: spd, size: sz, kind: k });
             }
-            if self.ticks % 75 == 0 && !self.threats.is_empty() {
-                if let Some(t) = self.threats.iter().find(|t| !t.is_bullet && t.y > 10.0 && t.y < 70.0) {
-                    bullet = Some(Threat { x: t.x, y: t.y + 2.0, speed: t.speed + 0.6, size: 0.9, is_bullet: true });
+            if self.ticks % 75 == 0 {
+                if let Some(t) = self.threats.iter().find(|t| t.kind == ThreatType::Scout && t.y > 10.0 && t.y < 70.0) {
+                    let bx = t.x; let by = t.y + 2.0; let bspd = t.speed + 0.6;
+                    self.threats.push(Threat { x: bx, y: by, speed: bspd, size: 0.9, kind: ThreatType::Bullet });
                 }
             }
         }
-        if let Some(b) = bullet { self.threats.push(b); }
         if self.ticks.is_multiple_of(600) && self.boss_health.is_none() {
             self.wave += 1;
             if self.wave % 10 == 0 {
@@ -172,12 +176,12 @@ impl GameState {
         let mut new_threats = Vec::new();
         for threat in old_threats {
             if threat.y >= 90.0 && threat.y <= 95.0 && (threat.x - self.player_x).abs() < 5.0 {
-                let dmg = if threat.is_bullet { 15 } else { 20 };
+                let dmg = if threat.kind == ThreatType::Bullet { 15 } else { 20 };
                 self.player_shield = self.player_shield.saturating_sub(dmg);
                 self.spawn_explosion(threat.x, threat.y, 8);
                 if self.player_shield == 0 { self.status = GameStatus::Lost; }
             } else if threat.y >= 100.0 {
-                if !threat.is_bullet {
+                if threat.kind != ThreatType::Bullet {
                     self.planet_shield = self.planet_shield.saturating_sub(10);
                     if self.planet_shield == 0 { self.status = GameStatus::Lost; }
                 }

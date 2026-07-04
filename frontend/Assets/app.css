@@ -478,6 +478,13 @@ main {
     filter: drop-shadow(0 0 5px #ef4444);
 }
 
+.neon-scout {
+    fill: #a855f7;
+    stroke: #f472b6;
+    stroke-width: 0.6;
+    filter: drop-shadow(0 0 8px #a855f7);
+}
+
 /* Hide the touch dpad/buttons on devices with a mouse */
 @media (pointer: fine) {
     .btn-touch {

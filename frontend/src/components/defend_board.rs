@@ -1,4 +1,4 @@
-use crate::components::defend_logic::{GameState, GameStatus};
+use crate::components::defend_logic::{GameState, GameStatus, ThreatType};
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
@@ -173,11 +173,20 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
 
                 {
                     for state.threats.iter().map(|threat| {
-                        if threat.is_bullet {
-                            html! { <line x1={threat.x.to_string()} y1={threat.y.to_string()} x2={threat.x.to_string()} y2={(threat.y + 2.5).to_string()} class="neon-enemy-bullet" /> }
-                        } else {
-                            let (tx, ty, s) = (threat.x, threat.y, threat.size);
-                            html! { <polygon points={format!("{},{} {},{} {},{} {},{}", tx, ty - s, tx + s, ty, tx, ty + s, tx - s, ty)} class="neon-threat" /> }
+                        match threat.kind {
+                            ThreatType::Bullet => {
+                                html! { <line x1={threat.x.to_string()} y1={threat.y.to_string()} x2={threat.x.to_string()} y2={(threat.y + 2.5).to_string()} class="neon-enemy-bullet" /> }
+                            }
+                            ThreatType::Scout => {
+                                let (tx, ty, s) = (threat.x, threat.y, threat.size);
+                                let points = format!("{},{} {},{} {},{} {},{} {},{}", tx, ty - s, tx + s, ty + s*0.3, tx + s*0.3, ty + s, tx - s*0.3, ty + s, tx - s, ty + s*0.3);
+                                html! { <polygon points={points} class="neon-scout" /> }
+                            }
+                            ThreatType::Asteroid => {
+                                let (tx, ty, s) = (threat.x, threat.y, threat.size);
+                                let points = format!("{},{} {},{} {},{} {},{}", tx, ty - s, tx + s, ty, tx, ty + s, tx - s, ty);
+                                html! { <polygon points={points} class="neon-threat" /> }
+                            }
                         }
                     })
                 }
