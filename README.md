@@ -1,7 +1,7 @@
 # Defend - Retro Neon Space Shooter
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/UberMetroid/unraid-templates/main/icons/defend.png" alt="Defend Logo" width="128" height="128">
+  <img src="frontend/Assets/favicon.png" alt="Defend Logo" width="128" height="128">
 </p>
 
 Defend is a clean, secure, and optimized retro-neon vertical space shooter arcade game built in Rust and WebAssembly, served by a high-performance Axum backend.
