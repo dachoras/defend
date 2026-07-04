@@ -14,10 +14,11 @@
 //! - [`defend_game`] — top-level game component that composes the defend
 //!   sub-modules and renders the score / overlay layout.
 
-pub mod footer;
-pub mod header;
-pub mod pin;
 pub mod defend_board;
+pub mod defend_controls;
 pub mod defend_game;
 pub mod defend_logic;
 pub mod defend_overlay;
+pub mod footer;
+pub mod header;
+pub mod pin;

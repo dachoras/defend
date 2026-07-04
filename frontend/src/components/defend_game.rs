@@ -1,12 +1,13 @@
 //! Main Defend gameplay container component.
 
 use crate::components::defend_board::DefendBoard;
+use crate::components::defend_controls::DefendControls;
 use crate::components::defend_logic::{GameState, GameStatus};
 use crate::components::defend_overlay::DefendOverlay;
 use crate::i18n::LocaleContext;
 use gloo_timers::callback::Interval;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::prelude::*;
 use yew::prelude::*;
 
 #[derive(Properties, PartialEq, Clone)]
@@ -15,6 +16,7 @@ pub struct Props {
 }
 
 #[function_component(DefendGame)]
+#[rustfmt::skip]
 pub fn defend_game(props: &Props) -> Html {
     let state = use_state(GameState::new);
     let interval_handle = use_mut_ref(|| None::<Interval>);
@@ -22,25 +24,14 @@ pub fn defend_game(props: &Props) -> Html {
     let touch_controls = use_mut_ref(|| (false, false, false)); // (left, right, fire)
     let locale = use_context::<LocaleContext>().expect("locale context");
 
-    // Clean up timer on component drop
-    {
-        let interval_handle = interval_handle.clone();
-        use_effect_with((), move |_| {
-            move || {
-                *interval_handle.borrow_mut() = None;
-            }
-        });
-    }
-
-    // Keyboard listeners
+    // Keyboard and timer lifecycle manager
     {
         let pressed_keys = pressed_keys.clone();
+        let interval_handle = interval_handle.clone();
         use_effect_with((), move |_| {
             let pressed_keys_down = pressed_keys.clone();
             let on_keydown = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
-                let key = event.key();
-                pressed_keys_down.borrow_mut().insert(key);
-
+                pressed_keys_down.borrow_mut().insert(event.key());
                 if [" ", "ArrowLeft", "ArrowRight"].contains(&event.key().as_str()) {
                     event.prevent_default();
                 }
@@ -60,9 +51,13 @@ pub fn defend_game(props: &Props) -> Html {
                 .unwrap();
 
             move || {
+                *interval_handle.borrow_mut() = None;
                 let window = web_sys::window().unwrap();
                 window
-                    .remove_event_listener_with_callback("keydown", on_keydown.as_ref().unchecked_ref())
+                    .remove_event_listener_with_callback(
+                        "keydown",
+                        on_keydown.as_ref().unchecked_ref(),
+                    )
                     .unwrap();
                 window
                     .remove_event_listener_with_callback("keyup", on_keyup.as_ref().unchecked_ref())
@@ -98,9 +93,6 @@ pub fn defend_game(props: &Props) -> Html {
                     if keys.contains("ArrowRight") || keys.contains("d") || keys.contains("D") {
                         current_state.move_player(3.0);
                     }
-                    if keys.contains(" ") {
-                        current_state.fire_laser();
-                    }
 
                     // Read touch controls
                     let (t_left, t_right, t_fire) = *touch_controls.borrow();
@@ -110,14 +102,20 @@ pub fn defend_game(props: &Props) -> Html {
                     if t_right {
                         current_state.move_player(3.0);
                     }
-                    if t_fire {
-                        current_state.fire_laser();
+
+                    // Charge shot input resolution (Space or Touch Fire)
+                    let charging_pressed = keys.contains(" ") || t_fire;
+                    if charging_pressed {
+                        current_state.start_charging();
+                    } else if current_state.is_charging {
+                        current_state.release_charge();
                     }
 
                     let old_status = current_state.status;
                     current_state.update();
 
-                    if current_state.status == GameStatus::Lost && old_status == GameStatus::Playing {
+                    if current_state.status == GameStatus::Lost && old_status == GameStatus::Playing
+                    {
                         on_status_tick.emit(Some((
                             "Shields collapsed! Sector defense compromised.".to_string(),
                             "error".to_string(),
@@ -211,85 +209,15 @@ pub fn defend_game(props: &Props) -> Html {
 
             // Controls and Stats Counter Row
             <div class="control-row-minimal">
-                <div class="mode-toggles">
-                    // Mobile Touch Controller Buttons
-                    <button
-                        class="btn-touch control-left"
-                        onmousedown={
-                            let set_left = set_touch_left.clone();
-                            Callback::from(move |e: MouseEvent| { e.prevent_default(); set_left(true); })
-                        }
-                        onmouseup={
-                            let set_left = set_touch_left.clone();
-                            Callback::from(move |_| set_left(false))
-                        }
-                        onmouseleave={
-                            let set_left = set_touch_left.clone();
-                            Callback::from(move |_| set_left(false))
-                        }
-                        ontouchstart={
-                            let set_left = set_touch_left.clone();
-                            Callback::from(move |e: TouchEvent| { e.prevent_default(); set_left(true); })
-                        }
-                        ontouchend={
-                            let set_left = set_touch_left.clone();
-                            Callback::from(move |_| set_left(false))
-                        }
-                    >
-                        { "◀" }
-                    </button>
-                    <button
-                        class="btn-touch control-right"
-                        onmousedown={
-                            let set_right = set_touch_right.clone();
-                            Callback::from(move |e: MouseEvent| { e.prevent_default(); set_right(true); })
-                        }
-                        onmouseup={
-                            let set_right = set_touch_right.clone();
-                            Callback::from(move |_| set_right(false))
-                        }
-                        onmouseleave={
-                            let set_right = set_touch_right.clone();
-                            Callback::from(move |_| set_right(false))
-                        }
-                        ontouchstart={
-                            let set_right = set_touch_right.clone();
-                            Callback::from(move |e: TouchEvent| { e.prevent_default(); set_right(true); })
-                        }
-                        ontouchend={
-                            let set_right = set_touch_right.clone();
-                            Callback::from(move |_| set_right(false))
-                        }
-                    >
-                        { "▶" }
-                    </button>
-                    <button
-                        class="btn-touch control-fire active"
-                        onmousedown={
-                            let set_fire = set_touch_fire.clone();
-                            Callback::from(move |e: MouseEvent| { e.prevent_default(); set_fire(true); })
-                        }
-                        onmouseup={
-                            let set_fire = set_touch_fire.clone();
-                            Callback::from(move |_| set_fire(false))
-                        }
-                        onmouseleave={
-                            let set_fire = set_touch_fire.clone();
-                            Callback::from(move |_| set_fire(false))
-                        }
-                        ontouchstart={
-                            let set_fire = set_touch_fire.clone();
-                            Callback::from(move |e: TouchEvent| { e.prevent_default(); set_fire(true); })
-                        }
-                        ontouchend={
-                            let set_fire = set_touch_fire.clone();
-                            Callback::from(move |_| set_fire(false))
-                        }
-                    >
-                        { "🔥 FIRE" }
-                    </button>
+                <div class="mode-toggles-container">
+                    <DefendControls
+                        on_left={let sl = set_touch_left.clone(); Callback::from(move |act| sl(act))}
+                        on_right={let sr = set_touch_right.clone(); Callback::from(move |act| sr(act))}
+                        on_fire={let sf = set_touch_fire.clone(); Callback::from(move |act| sf(act))}
+                        is_charging={state.is_charging}
+                        charge_level={state.charge_level}
+                    />
 
-                    // Core Restart Button Action
                     if state.status == GameStatus::Playing {
                         <button onclick={let reset = reset_game.clone(); Callback::from(move |_| reset.emit(()))} class="btn-reset">
                             { locale.t("restart") }

@@ -5,10 +5,10 @@
 //! every descendant can call `ctx.t(...)` for translations.
 
 use crate::app::{App, Msg};
+use crate::components::defend_game::DefendGame;
 use crate::components::footer::Footer;
 use crate::components::header::Header;
 use crate::components::pin::Login;
-use crate::components::defend_game::DefendGame;
 use shared_core::i18n::Language;
 use yew::prelude::*;
 

@@ -62,7 +62,10 @@ impl App {
         match msg {
             Msg::LoadConfig(config) => self.handle_load_config(ctx, config),
             Msg::LoadPinRequired(req) => self.handle_load_pin_required(ctx, req),
-            Msg::SetAuthenticated { auth, show_notification } => self.handle_set_authenticated(ctx, auth, show_notification),
+            Msg::SetAuthenticated {
+                auth,
+                show_notification,
+            } => self.handle_set_authenticated(ctx, auth, show_notification),
             Msg::SwitchLanguage(lang) => self.handle_switch_language(ctx, lang),
             Msg::ToggleTheme => self.handle_toggle_theme(ctx),
             Msg::Logout => self.handle_logout(ctx),

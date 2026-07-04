@@ -11,6 +11,8 @@ pub enum GameStatus {
 pub struct Laser {
     pub x: f64,
     pub y: f64,
+    pub is_charge_shot: bool,
+    pub radius: f64,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -41,27 +43,22 @@ pub struct GameState {
     pub wave: u32,
     pub status: GameStatus,
     pub ticks: u64,
+    pub charge_level: f64,
+    pub is_charging: bool,
 }
 
 impl GameState {
+    #[rustfmt::skip]
     pub fn new() -> Self {
         Self {
-            player_x: 50.0,
-            lasers: Vec::new(),
-            threats: Vec::new(),
-            particles: Vec::new(),
-            score: 0,
-            shield: 100,
-            wave: 1,
-            status: GameStatus::NotStarted,
-            ticks: 0,
+            player_x: 50.0, lasers: Vec::new(), threats: Vec::new(), particles: Vec::new(),
+            score: 0, shield: 100, wave: 1, status: GameStatus::NotStarted, ticks: 0,
+            charge_level: 0.0, is_charging: false,
         }
     }
 
-    pub fn start(&mut self) {
-        *self = Self::new();
-        self.status = GameStatus::Playing;
-    }
+    #[rustfmt::skip]
+    pub fn start(&mut self) { *self = Self::new(); self.status = GameStatus::Playing; }
 
     pub fn update(&mut self) {
         if self.status != GameStatus::Playing {
@@ -70,13 +67,38 @@ impl GameState {
 
         self.ticks += 1;
 
+        // Update charge shot status
+        if self.is_charging {
+            self.charge_level = (self.charge_level + 0.025).min(1.0);
+            if self.ticks % 2 == 0 {
+                let angle = js_sys::Math::random() * std::f64::consts::TAU;
+                let dist = js_sys::Math::random() * 8.0 + 4.0;
+                let px = self.player_x + angle.cos() * dist;
+                let py = 87.0 + angle.sin() * dist;
+                let vx = (self.player_x - px) * 0.12;
+                let vy = (87.0 - py) * 0.12;
+                self.particles.push(Particle {
+                    x: px,
+                    y: py,
+                    vx,
+                    vy,
+                    life: 0.8,
+                });
+            }
+        }
+
         // 1. Spawn threats
         let spawn_interval = (35 - (self.wave as i32 * 2)).max(10) as u64;
         if self.ticks.is_multiple_of(spawn_interval) {
             let x = js_sys::Math::random() * 90.0 + 5.0;
             let speed = js_sys::Math::random() * 0.4 + 0.3 + (self.wave as f64 * 0.05);
             let size = js_sys::Math::random() * 2.0 + 2.0;
-            self.threats.push(Threat { x, y: 0.0, speed, size });
+            self.threats.push(Threat {
+                x,
+                y: 0.0,
+                speed,
+                size,
+            });
         }
 
         // Increase wave every 600 ticks
@@ -86,7 +108,11 @@ impl GameState {
 
         // 2. Move lasers
         for laser in &mut self.lasers {
-            laser.y -= 2.0;
+            if laser.is_charge_shot {
+                laser.y -= 1.5;
+            } else {
+                laser.y -= 2.0;
+            }
         }
         self.lasers.retain(|l| l.y > 0.0);
 
@@ -127,8 +153,15 @@ impl GameState {
                 let dx = laser.x - threat.x;
                 let dy = laser.y - threat.y;
                 let dist = (dx * dx + dy * dy).sqrt();
-                if dist < (threat.size + 1.5) {
-                    hit_lasers.insert(l_idx);
+                let col_dist = if laser.is_charge_shot {
+                    laser.radius + threat.size
+                } else {
+                    threat.size + 1.5
+                };
+                if dist < col_dist {
+                    if !laser.is_charge_shot {
+                        hit_lasers.insert(l_idx);
+                    }
                     hit_threats.insert(t_idx);
                 }
             }
@@ -180,22 +213,33 @@ impl GameState {
         }
     }
 
-    pub fn fire_laser(&mut self) {
-        if self.status != GameStatus::Playing {
+    #[rustfmt::skip]
+    pub fn start_charging(&mut self) { if self.status == GameStatus::Playing { self.is_charging = true; } }
+
+    pub fn release_charge(&mut self) {
+        if self.status != GameStatus::Playing || !self.is_charging {
             return;
         }
-        if self.lasers.len() < 4 {
+        if self.charge_level >= 1.0 {
+            self.lasers.push(Laser {
+                x: self.player_x,
+                y: 86.0,
+                is_charge_shot: true,
+                radius: 7.5,
+            });
+            self.spawn_explosion(self.player_x, 86.0, 15);
+        } else {
             self.lasers.push(Laser {
                 x: self.player_x,
                 y: 88.0,
+                is_charge_shot: false,
+                radius: 1.0,
             });
         }
+        self.is_charging = false;
+        self.charge_level = 0.0;
     }
 
-    pub fn move_player(&mut self, dx: f64) {
-        if self.status != GameStatus::Playing {
-            return;
-        }
-        self.player_x = (self.player_x + dx).clamp(6.0, 94.0);
-    }
+    #[rustfmt::skip]
+    pub fn move_player(&mut self, dx: f64) { if self.status == GameStatus::Playing { self.player_x = (self.player_x + dx).clamp(6.0, 94.0); } }
 }

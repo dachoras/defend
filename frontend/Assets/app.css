@@ -360,6 +360,41 @@ main {
 .control-fire {
     border-color: #ef4444 !important;
     color: #ef4444 !important;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.05s linear;
+}
+
+.control-fire.fully-charged {
+    border-color: #ffeb3b !important;
+    color: #ffeb3b !important;
+    box-shadow: 0 0 15px #ffeb3b !important;
+    animation: pulseGlow 0.4s infinite alternate;
+}
+
+/* Charge shot and orb visuals */
+.neon-charge-orb {
+    fill: #ffaa00;
+    filter: drop-shadow(0 0 5px #ffaa00);
+    opacity: 0.85;
+}
+
+.neon-charge-orb.fully-charged {
+    fill: #ffeb3b;
+    filter: drop-shadow(0 0 10px #ffeb3b);
+    animation: pulseGlow 0.2s infinite alternate;
+}
+
+.neon-charge-shot {
+    fill: #ff5500;
+    stroke: #ffeb3b;
+    stroke-width: 1.0;
+    filter: drop-shadow(0 0 12px #ff5500);
+}
+
+@keyframes pulseGlow {
+    from { filter: drop-shadow(0 0 4px currentColor); }
+    to { filter: drop-shadow(0 0 12px currentColor); }
 }
 
 /* Hide the touch dpad/buttons on devices with a mouse */

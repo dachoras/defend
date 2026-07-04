@@ -14,8 +14,33 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         let px = state.player_x;
         Some(format!(
             "{},87 {},89 {},91 {},93 {},95 {},93 {},95 {},93 {},95 {},93 {},95 {},93 {},91 {},89",
-            px, px - 1.0, px - 1.0, px - 4.0, px - 4.0, px - 1.0, px - 1.0, px, px + 1.0, px + 1.0, px + 4.0, px + 4.0, px + 1.0, px + 1.0
+            px,
+            px - 1.0,
+            px - 1.0,
+            px - 4.0,
+            px - 4.0,
+            px - 1.0,
+            px - 1.0,
+            px,
+            px + 1.0,
+            px + 1.0,
+            px + 4.0,
+            px + 4.0,
+            px + 1.0,
+            px + 1.0
         ))
+    } else {
+        None
+    };
+
+    let charge_orb = if state.is_charging {
+        let r = (state.charge_level * 3.5).max(0.5);
+        let orb_class = if state.charge_level >= 1.0 {
+            "neon-charge-orb fully-charged"
+        } else {
+            "neon-charge-orb"
+        };
+        Some((r, orb_class))
     } else {
         None
     };
@@ -37,17 +62,37 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
                     />
                 }
 
-                // Render lasers (cyan neon pulses)
+                if let Some((r, orb_class)) = charge_orb {
+                    <circle
+                        cx={state.player_x.to_string()}
+                        cy="86"
+                        r={r.to_string()}
+                        class={orb_class}
+                    />
+                }
+
+                // Render lasers (cyan neon pulses or massive charge blasts)
                 {
                     for state.lasers.iter().map(|laser| {
-                        html! {
-                            <line
-                                x1={laser.x.to_string()}
-                                y1={laser.y.to_string()}
-                                x2={laser.x.to_string()}
-                                y2={(laser.y - 3.0).to_string()}
-                                class="neon-laser"
-                            />
+                        if laser.is_charge_shot {
+                            html! {
+                                <circle
+                                    cx={laser.x.to_string()}
+                                    cy={laser.y.to_string()}
+                                    r={laser.radius.to_string()}
+                                    class="neon-charge-shot"
+                                />
+                            }
+                        } else {
+                            html! {
+                                <line
+                                    x1={laser.x.to_string()}
+                                    y1={laser.y.to_string()}
+                                    x2={laser.x.to_string()}
+                                    y2={(laser.y - 3.0).to_string()}
+                                    class="neon-laser"
+                                />
+                            }
                         }
                     })
                 }

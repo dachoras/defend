@@ -74,7 +74,10 @@ async fn pwa_manifest_overrides_site_title() {
     assert_eq!(status, StatusCode::OK);
     assert_eq!(body["name"], "Defend");
     assert_eq!(body["short_name"], "Defend");
-    assert_eq!(body["description"], "Defend the sector against planetary orbital hazards");
+    assert_eq!(
+        body["description"],
+        "Defend the sector against planetary orbital hazards"
+    );
 }
 
 #[tokio::test]
