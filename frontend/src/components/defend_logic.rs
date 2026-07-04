@@ -174,14 +174,17 @@ impl GameState {
 
         let old_threats = std::mem::take(&mut self.threats);
         let mut new_threats = Vec::new();
-        for threat in old_threats {
+        for mut threat in old_threats {
             if threat.y >= 90.0 && threat.y <= 95.0 && (threat.x - self.player_x).abs() < 5.0 {
                 let dmg = if threat.kind == ThreatType::Bullet { 15 } else { 20 };
                 self.player_shield = self.player_shield.saturating_sub(dmg);
                 self.spawn_explosion(threat.x, threat.y, 8);
                 if self.player_shield == 0 { self.status = GameStatus::Lost; }
             } else if threat.y >= 100.0 {
-                if threat.kind != ThreatType::Bullet {
+                if threat.kind == ThreatType::Scout {
+                    threat.y = 0.0; threat.x = js_sys::Math::random() * 90.0 + 5.0;
+                    new_threats.push(threat);
+                } else if threat.kind == ThreatType::Asteroid {
                     self.planet_shield = self.planet_shield.saturating_sub(10);
                     if self.planet_shield == 0 { self.status = GameStatus::Lost; }
                 }
@@ -219,9 +222,8 @@ impl GameState {
     #[rustfmt::skip]
     pub fn spawn_explosion(&mut self, x: f64, y: f64, count: usize) {
         for _ in 0..count {
-            let angle = js_sys::Math::random() * std::f64::consts::TAU;
-            let speed = js_sys::Math::random() * 1.5 + 0.5;
-            self.particles.push(Particle { x, y, vx: angle.cos() * speed, vy: angle.sin() * speed, life: 1.0 });
+            let (ang, spd) = (js_sys::Math::random() * std::f64::consts::TAU, js_sys::Math::random() * 1.5 + 0.5);
+            self.particles.push(Particle { x, y, vx: ang.cos() * spd, vy: ang.sin() * spd, life: 1.0 });
         }
     }
 
