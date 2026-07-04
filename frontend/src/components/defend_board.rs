@@ -80,6 +80,30 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         None
     };
 
+    let boss_points = if state.boss_health.is_some() {
+        let bx = state.boss_x;
+        Some(format!(
+            "{},8 {},12 {},18 {},18 {},14 {},18 {},18 {},12",
+            bx,
+            bx - 7.0,
+            bx - 9.0,
+            bx - 4.0,
+            bx,
+            bx + 4.0,
+            bx + 9.0,
+            bx + 7.0
+        ))
+    } else {
+        None
+    };
+
+    let boss_health_bar_width = if let Some(bh) = state.boss_health {
+        let pct = bh as f64 / state.boss_max_health as f64;
+        Some(format!("{}", pct * 50.0))
+    } else {
+        None
+    };
+
     html! {
         <div class="defend-board-container">
             <svg class="defend-svg-canvas" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
@@ -134,6 +158,22 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
                 if state.beam_time > 0 {
                     <line x1={state.player_x.to_string()} y1="88" x2={state.player_x.to_string()} y2="0" class="neon-level2-beam" />
                     <line x1={state.player_x.to_string()} y1="88" x2={state.player_x.to_string()} y2="0" class="neon-level2-beam-core" />
+                    if state.helper_time > 0 {
+                        <line x1={(state.player_x - 5.5).to_string()} y1="92" x2={(state.player_x - 5.5).to_string()} y2="0" class="neon-level2-beam" />
+                        <line x1={(state.player_x - 5.5).to_string()} y1="92" x2={(state.player_x - 5.5).to_string()} y2="0" class="neon-level2-beam-core" />
+                        <line x1={(state.player_x + 5.5).to_string()} y1="92" x2={(state.player_x + 5.5).to_string()} y2="0" class="neon-level2-beam" />
+                        <line x1={(state.player_x + 5.5).to_string()} y1="92" x2={(state.player_x + 5.5).to_string()} y2="0" class="neon-level2-beam-core" />
+                    }
+                }
+
+                if let Some(points) = boss_points {
+                    <polygon points={points} class="neon-boss-ship" />
+                }
+
+                if let Some(w) = boss_health_bar_width {
+                    <rect x="25" y="4" width="50" height="1.2" fill="#333333" rx="0.3" />
+                    <rect x="25" y="4" width={w} height="1.2" fill="#ef4444" rx="0.3" class="neon-boss-health-bar" />
+                    <text x="50" y="3" fill="#ef4444" font-size="2" font-family="monospace" text-anchor="middle" class="neon-boss-label">{ "BOSS THREAT" }</text>
                 }
 
                 // Render lasers (cyan neon pulses or massive charge blasts)

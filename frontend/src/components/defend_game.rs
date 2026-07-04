@@ -165,25 +165,12 @@ pub fn defend_game(props: &Props) -> Html {
         })
     };
 
-    // Touch control handlers
-    let set_touch_left = {
-        let touch_controls = touch_controls.clone();
-        move |active: bool| {
-            touch_controls.borrow_mut().0 = active;
-        }
-    };
-    let set_touch_right = {
-        let touch_controls = touch_controls.clone();
-        move |active: bool| {
-            touch_controls.borrow_mut().1 = active;
-        }
-    };
-    let set_touch_fire = {
-        let touch_controls = touch_controls.clone();
-        move |active: bool| {
-            touch_controls.borrow_mut().2 = active;
-        }
-    };
+    #[rustfmt::skip]
+    let set_touch_left = { let tc = touch_controls.clone(); move |act: bool| tc.borrow_mut().0 = act };
+    #[rustfmt::skip]
+    let set_touch_right = { let tc = touch_controls.clone(); move |act: bool| tc.borrow_mut().1 = act };
+    #[rustfmt::skip]
+    let set_touch_fire = { let tc = touch_controls.clone(); move |act: bool| tc.borrow_mut().2 = act };
 
     html! {
         <div class="game-container">
@@ -211,9 +198,9 @@ pub fn defend_game(props: &Props) -> Html {
             <div class="control-row-minimal">
                 <div class="mode-toggles-container">
                     <DefendControls
-                        on_left={let sl = set_touch_left.clone(); Callback::from(move |act| sl(act))}
-                        on_right={let sr = set_touch_right.clone(); Callback::from(move |act| sr(act))}
-                        on_fire={let sf = set_touch_fire.clone(); Callback::from(move |act| sf(act))}
+                        on_left={Callback::from(set_touch_left.clone())}
+                        on_right={Callback::from(set_touch_right.clone())}
+                        on_fire={Callback::from(set_touch_fire.clone())}
                         is_charging={state.is_charging}
                         charge_level={state.charge_level}
                     />
@@ -231,8 +218,16 @@ pub fn defend_game(props: &Props) -> Html {
 
                 <div class="stats-counter">
                     <div class="flags-counter">
-                        <span class="hud-label">{ "SHIELDS:" }</span>
-                        <span class="hud-value font-neon">{ format!("{}%", state.shield) }</span>
+                        <span class="hud-label">{ "SHIP:" }</span>
+                        <span class="hud-value font-neon">{ format!("{}%", state.player_shield) }</span>
+                    </div>
+                    <div class="flags-counter">
+                        <span class="hud-label">{ "PLANET:" }</span>
+                        <span class="hud-value font-neon">{ format!("{}%", state.planet_shield) }</span>
+                    </div>
+                    <div class="flags-counter">
+                        <span class="hud-label">{ "WAVE:" }</span>
+                        <span class="hud-value font-neon">{ state.wave }</span>
                     </div>
                     <div class="timer-counter">
                         <span class="hud-label">{ "SCORE:" }</span>

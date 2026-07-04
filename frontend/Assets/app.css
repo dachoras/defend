@@ -453,6 +453,24 @@ main {
     opacity: 0.95;
 }
 
+.neon-boss-ship {
+    fill: #ef4444;
+    stroke: #c084fc;
+    stroke-width: 0.8;
+    filter: drop-shadow(0 0 12px #ef4444);
+    animation: hoverPulse 0.4s infinite alternate ease-in-out;
+}
+
+.neon-boss-health-bar {
+    filter: drop-shadow(0 0 4px #ef4444);
+}
+
+.neon-boss-label {
+    filter: drop-shadow(0 0 3px #ef4444);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
 /* Hide the touch dpad/buttons on devices with a mouse */
 @media (pointer: fine) {
     .btn-touch {
