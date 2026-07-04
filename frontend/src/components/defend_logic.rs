@@ -1,36 +1,24 @@
 //! Defend game logic and grid state management.
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
-pub enum GameStatus {
-    NotStarted,
-    Playing,
-    Lost,
-}
+#[rustfmt::skip]
+pub enum GameStatus { NotStarted, Playing, Lost }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Laser {
-    pub x: f64,
-    pub y: f64,
-    pub is_charge_shot: bool,
-    pub radius: f64,
-}
+#[rustfmt::skip]
+pub struct Laser { pub x: f64, pub y: f64, pub is_charge_shot: bool, pub radius: f64 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Threat {
-    pub x: f64,
-    pub y: f64,
-    pub speed: f64,
-    pub size: f64,
-}
+#[rustfmt::skip]
+pub struct Threat { pub x: f64, pub y: f64, pub speed: f64, pub size: f64 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Particle {
-    pub x: f64,
-    pub y: f64,
-    pub vx: f64,
-    pub vy: f64,
-    pub life: f64,
-}
+#[rustfmt::skip]
+pub struct Particle { pub x: f64, pub y: f64, pub vx: f64, pub vy: f64, pub life: f64 }
+
+#[derive(Clone, Debug, PartialEq)]
+#[rustfmt::skip]
+pub struct Star { pub x: f64, pub y: f64, pub speed: f64, pub size: f64 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct GameState {
@@ -45,6 +33,7 @@ pub struct GameState {
     pub ticks: u64,
     pub charge_level: f64,
     pub is_charging: bool,
+    pub stars: Vec<Star>,
 }
 
 impl GameState {
@@ -54,18 +43,31 @@ impl GameState {
             player_x: 50.0, lasers: Vec::new(), threats: Vec::new(), particles: Vec::new(),
             score: 0, shield: 100, wave: 1, status: GameStatus::NotStarted, ticks: 0,
             charge_level: 0.0, is_charging: false,
+            stars: (0..22).map(|_| Star {
+                x: js_sys::Math::random() * 100.0,
+                y: js_sys::Math::random() * 100.0,
+                speed: js_sys::Math::random() * 0.45 + 0.15,
+                size: js_sys::Math::random() * 0.45 + 0.15,
+            }).collect(),
         }
     }
 
     #[rustfmt::skip]
     pub fn start(&mut self) { *self = Self::new(); self.status = GameStatus::Playing; }
 
+    #[rustfmt::skip]
     pub fn update(&mut self) {
         if self.status != GameStatus::Playing {
             return;
         }
 
         self.ticks += 1;
+
+        // Move background stars (parallax)
+        for s in &mut self.stars {
+            s.y += s.speed;
+            if s.y > 100.0 { s.y = 0.0; s.x = js_sys::Math::random() * 100.0; }
+        }
 
         // Update charge shot status
         if self.is_charging {

@@ -55,6 +55,22 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
                 </defs>
                 <rect width="100%" height="100%" fill="url(#grid-pattern)" />
 
+                // Render background stars (parallax dust)
+                {
+                    for state.stars.iter().map(|star| {
+                        let opacity = 0.15 + (star.speed * 0.5);
+                        let style = format!("opacity: {}; fill: #ffffff;", opacity);
+                        html! {
+                            <circle
+                                cx={star.x.to_string()}
+                                cy={star.y.to_string()}
+                                r={star.size.to_string()}
+                                style={style}
+                            />
+                        }
+                    })
+                }
+
                 if let Some(points) = ship_points {
                     <polygon
                         points={points}
