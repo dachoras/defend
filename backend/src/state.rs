@@ -19,7 +19,7 @@ use crate::services::rate_limit::RateLimiter;
 
 /// Process-global state shared by every request handler.
 pub struct AppStateInner {
-    /// Snake configuration (port, PIN, CORS, ...).
+    /// Defend configuration (port, PIN, CORS, ...).
     pub config: AppConfig,
     /// On-disk data directory (leaderboard, logs).
     pub data_dir: PathBuf,

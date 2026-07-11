@@ -1,4 +1,4 @@
-//! Black-box integration tests for the snake backend's `/ready` probe.
+//! Black-box integration tests for the defend backend's `/ready` probe.
 
 mod common;
 

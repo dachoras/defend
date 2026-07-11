@@ -128,7 +128,7 @@ mod tests {
         });
 
         // Mirror the same mutations `serve_manifest` performs.
-        let site_title = "Snake";
+        let site_title = "Defend";
         value["name"] = Value::String(site_title.to_string());
         value["short_name"] = Value::String(site_title.to_string());
         value["description"] = Value::String(FALLBACK_DESCRIPTION.to_string());

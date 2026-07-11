@@ -1,4 +1,4 @@
-//! Black-box integration tests for the snake backend's `/health` endpoint.
+//! Black-box integration tests for the defend backend's `/health` endpoint.
 
 mod common;
 

@@ -1,6 +1,6 @@
 //! Stub `/bin/sh` binary shipped inside the runtime container.
 //!
-//! Some minimal container images install the snake binary at `/bin/sh` so
+//! Some minimal container images install the defend binary at `/bin/sh` so
 //! that `exec /bin/sh` from the orchestrator lands on a runnable process.
 //! This stub exists so cargo's auto-discovery still finds it as a binary
 //! target and the deployment pipeline doesn't try to overwrite it with a

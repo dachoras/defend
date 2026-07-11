@@ -27,10 +27,10 @@ use crate::state::AppState;
 /// `413 Payload Too Large` via [`RequestBodyLimitLayer`].
 const REQUEST_BODY_LIMIT_BYTES: usize = 64 * 1024;
 
-/// Increment `snake_requests_total` for every request that reaches the
+/// Increment `defend_requests_total` for every request that reaches the
 /// router. Lives at the outermost layer so even rate-limited and
 /// cross-origin-rejected requests show up in the counter; the dedicated
-/// `snake_requests_429_total` gauge is incremented separately by
+/// `defend_requests_429_total` gauge is incremented separately by
 /// [`rate_limit_middleware`] on a `429` response.
 async fn metrics_counter_middleware(
     State(state): State<AppState>,
@@ -41,7 +41,7 @@ async fn metrics_counter_middleware(
     next.run(req).await
 }
 
-/// Build the snake router. `web_root` is the resolved on-disk frontend
+/// Build the defend router. `web_root` is the resolved on-disk frontend
 /// directory (the `ServeDir` fallback serves anything not handled by an
 /// explicit route from there).
 pub fn build_router(state: AppState, web_root: &Path) -> Router {

@@ -1,7 +1,7 @@
 //! View layer for the root [`App`] component.
 //!
 //! Composes the [`Header`], body content (either [`Login`] or
-//! [`SnakeGame`]), and [`Footer`] inside a [`LocaleContext`] provider so
+//! [`DefendGame`]), and [`Footer`] inside a [`LocaleContext`] provider so
 //! every descendant can call `ctx.t(...)` for translations.
 
 use crate::app::{App, Msg};

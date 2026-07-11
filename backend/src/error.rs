@@ -1,4 +1,4 @@
-//! Snake-wide error type.
+//! Defend-wide error type.
 //!
 //! Handlers return `Result<impl IntoResponse, AppError>` so the framework
 //! can render a consistent error envelope without each handler rolling its
@@ -9,7 +9,7 @@
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 
-/// Errors produced by Snake handlers and middleware.
+/// Errors produced by Defend handlers and middleware.
 #[derive(Debug, thiserror::Error)]
 pub enum AppError {
     /// Underlying I/O failure (file missing, permission denied, etc.).

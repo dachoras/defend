@@ -1,4 +1,4 @@
-//! Snake frontend crate root.
+//! Defend frontend crate root.
 //!
 //! Wires together the application modules and bootstraps the Yew client
 //! renderer. The crate is intentionally small at the top level: every

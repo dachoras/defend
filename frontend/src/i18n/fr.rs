@@ -1,4 +1,4 @@
-//! French translation table for the Snake UI.
+//! French translation table for the Defend UI.
 //!
 //! Mirror of [`crate::i18n::en::translate`]. Missing keys fall through to
 //! the English table at lookup time so a partial translation still

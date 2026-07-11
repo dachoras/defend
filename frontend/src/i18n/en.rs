@@ -1,4 +1,4 @@
-//! English (default-fallback) translation table for the Snake UI.
+//! English (default-fallback) translation table for the Defend UI.
 //!
 //! Only keys actually consumed by the UI live here; everything else was
 //! inherited from a sibling app and is intentionally omitted to keep the

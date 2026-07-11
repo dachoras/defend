@@ -1,4 +1,4 @@
-//! Internationalisation plumbing for the Snake UI.
+//! Internationalisation plumbing for the Defend UI.
 //!
 //! Three responsibilities:
 //!

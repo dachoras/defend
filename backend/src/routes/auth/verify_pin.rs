@@ -165,14 +165,14 @@ mod tests {
     #[test]
     fn cookie_secure_via_base_url() {
         let h = HeaderMap::new();
-        assert!(cookie_should_be_secure(&h, "https://snake.example"));
-        assert!(!cookie_should_be_secure(&h, "http://snake.example"));
+        assert!(cookie_should_be_secure(&h, "https://defend.example"));
+        assert!(!cookie_should_be_secure(&h, "http://defend.example"));
     }
 
     #[test]
     fn cookie_secure_handles_uppercase_https_header() {
         let mut h = HeaderMap::new();
         h.insert("x-forwarded-proto", "HTTPS".parse().unwrap());
-        assert!(cookie_should_be_secure(&h, "http://snake.example"));
+        assert!(cookie_should_be_secure(&h, "http://defend.example"));
     }
 }

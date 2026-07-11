@@ -1,4 +1,4 @@
-//! Snake backend library entrypoint.
+//! Defend backend library entrypoint.
 //!
 //! The crate is structured so that `main.rs` is a thin orchestration shell
 //! while all real logic lives in [`bootstrap`], [`router`], [`state`],

@@ -1,4 +1,4 @@
-//! Shared helpers for the snake backend integration test suite.
+//! Shared helpers for the defend backend integration test suite.
 //!
 //! Each test file is compiled as a separate binary; `mod common;` pulls
 //! these helpers into the test binary at compile time. Individual test

@@ -1,3 +1,14 @@
+//! SVG canvas rendering board for Defend.
+//!
+//! # Coordinate System
+//! The gameplay board maps to a normalized 100x100 SVG coordinate grid:
+//! - X-axis: `0.0` is the left edge, `100.0` is the right edge.
+//! - Y-axis: `0.0` is the top (enemy spawn area), `100.0` is the bottom (planet shield boundary).
+//! - Player: Fixed at Y-coordinate `92.0`, moves horizontally along `player_x` (clamped between 6.0 and 94.0).
+//! - Drone Helpers: Offset horizontally from the player ship at `player_x - 5.5` and `player_x + 5.5`.
+//! - Boss: Floats horizontally at the top, centered on `boss_x` at Y-coordinate `15.0`.
+//! - Projectiles: Travel upwards (decreasing Y) or downwards (increasing Y).
+
 use crate::components::defend_logic::{GameState, GameStatus, ThreatType};
 use yew::prelude::*;
 
@@ -10,6 +21,22 @@ pub struct DefendBoardProps {
 pub fn defend_board(props: &DefendBoardProps) -> Html {
     let state = &props.state;
 
+    // The player ship is drawn as a polygon relative to the current player X coordinate (px) at Y=92.0.
+    // The points trace a futuristic fighter hull with left/right wings and rear engine exhaust notches:
+    // 1. Nose tip: (px, 89)
+    // 2. Left cockpit edge: (px - 0.7, 90.5)
+    // 3. Left wing start: (px - 0.7, 92)
+    // 4. Left wing tip front: (px - 3.0, 93.5)
+    // 5. Left wing tip back: (px - 3.0, 95)
+    // 6. Left engine hull outer: (px - 0.7, 93.5)
+    // 7. Left engine exhaust: (px - 0.7, 95)
+    // 8. Center rear exhaust slot: (px, 93.5)
+    // 9. Right engine exhaust: (px + 0.7, 95)
+    // 10. Right engine hull outer: (px + 0.7, 93.5)
+    // 11. Right wing tip back: (px + 3.0, 95)
+    // 12. Right wing tip front: (px + 3.0, 93.5)
+    // 13. Right wing start: (px + 0.7, 92)
+    // 14. Right cockpit edge: (px + 0.7, 90.5)
     let ship_points = if state.status == GameStatus::Playing {
         let px = state.player_x;
         Some(format!(
@@ -33,6 +60,8 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         None
     };
 
+    // Helper drones are represented by smaller triangles offset on either side of the ship.
+    // Left drone is centered horizontally at `px - 5.5`, right drone at `px + 5.5`.
     let drone_points = if state.helper_time > 0 {
         let px = state.player_x;
         Some((
@@ -43,6 +72,8 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         None
     };
 
+    // Falling power-ups are rendered as diamond-shaped polygons centered around (px, py)
+    // with a horizontal and vertical radius of 2.5.
     let powerup_points = if state.powerup_type > 0 {
         let (px, py) = (state.powerup_x, state.powerup_y);
         let pts = format!(
@@ -66,6 +97,8 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         None
     };
 
+    // The charging orb is a glowing circle drawn right at the weapon mount (Y = 88.0).
+    // The radius increases proportionally to the charge level, capped visually.
     let charge_orb = if state.is_charging {
         let r = (state.charge_level * 3.5).max(0.5);
         let orb_class = if state.charge_level >= 2.0 {
@@ -80,6 +113,16 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         None
     };
 
+    // The boss ship is rendered at the top as a large polygon centered on `bx` around Y=15.
+    // The geometry maps a heavy cruiser hull:
+    // 1. Nose / Front Cannon: (bx, 8)
+    // 2. Left Shoulder: (bx - 7.0, 12)
+    // 3. Left Wingtip: (bx - 9.0, 18)
+    // 4. Left Thruster: (bx - 4.0, 18)
+    // 5. Rear Center Exhaust: (bx, 14)
+    // 6. Right Thruster: (bx + 4.0, 18)
+    // 7. Right Wingtip: (bx + 9.0, 18)
+    // 8. Right Shoulder: (bx + 7.0, 12)
     let boss_points = if state.boss_health.is_some() {
         let bx = state.boss_x;
         Some(format!(
@@ -97,6 +140,7 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
         None
     };
 
+    // Computes the red filled portion of the boss health bar (width scaled up to 50 SVG units).
     let boss_health_bar_width = if let Some(bh) = state.boss_health {
         Some(format!(
             "{}",

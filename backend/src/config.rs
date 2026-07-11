@@ -1,6 +1,6 @@
-//! Snake-specific configuration layered on top of shared [`ServerConfig`].
+//! Defend-specific configuration layered on top of shared [`ServerConfig`].
 //!
-//! Snake adds three fields beyond the shared baseline:
+//! Defend adds three fields beyond the shared baseline:
 //! - `page_history_cookie_age_days` — undo-history persistence
 //! - `node_env` — dev/prod env hint
 //! - `version` — `CARGO_PKG_VERSION` snapshot
@@ -9,7 +9,7 @@ use shared_backend::server::ServerConfig;
 
 /// Canonical application brand name surfaced as the default PWA / site
 /// title fallback. Use this constant instead of hard-coding the literal
-/// `"Snake"` at call sites.
+/// `"Defend"` at call sites.
 pub const APP_BRAND: &str = "Defend";
 
 /// Env-var name controlling the undo-history cookie lifetime.
@@ -53,7 +53,7 @@ fn read_translation_env() -> bool {
     parse_translation_env(std::env::var(ENABLE_TRANSLATION_ENV).ok().as_deref())
 }
 
-/// Snake application configuration. Wraps [`ServerConfig`] with snake-specific
+/// Defend application configuration. Wraps [`ServerConfig`] with defend-specific
 /// retention and version fields.
 #[derive(Clone, Debug)]
 pub struct AppConfig {
@@ -69,7 +69,7 @@ pub struct AppConfig {
 
 impl AppConfig {
     /// Build a config by combining shared [`ServerConfig::from_env`] with
-    /// snake-specific env parsing.
+    /// defend-specific env parsing.
     ///
     /// `port` overrides the value read by `ServerConfig::from_env` from the
     /// `PORT` env var. The shared loader already reads `PORT` itself; the
@@ -109,7 +109,7 @@ impl AppConfig {
             }
         }
 
-        // `ENABLE_TRANSLATION` defaults to `true` for Snake (the shared
+        // `ENABLE_TRANSLATION` defaults to `true` for Defend (the shared
         // `ServerConfig::from_env` defaults to `false`, which is the
         // upstream notepad convention). Any value other than the
         // canonical "off" tokens enables the language picker. Operators

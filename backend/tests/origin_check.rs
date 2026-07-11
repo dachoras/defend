@@ -1,4 +1,4 @@
-//! Black-box integration tests for the snake backend's Origin-header
+//! Black-box integration tests for the defend backend's Origin-header
 //! CSRF middleware on `/api/leaderboard` POSTs.
 
 mod common;

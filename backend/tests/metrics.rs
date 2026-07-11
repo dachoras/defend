@@ -1,4 +1,4 @@
-//! Black-box integration tests for the snake backend's `/metrics`
+//! Black-box integration tests for the defend backend's `/metrics`
 //! Prometheus endpoint.
 
 mod common;

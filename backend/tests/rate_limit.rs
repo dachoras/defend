@@ -1,4 +1,4 @@
-//! Black-box integration tests for the snake backend's per-IP rate limiter.
+//! Black-box integration tests for the defend backend's per-IP rate limiter.
 
 mod common;
 

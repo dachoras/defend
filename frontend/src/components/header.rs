@@ -9,9 +9,9 @@
 //!    `shared-frontend` directly, which keeps the dependency surface
 //!    localised.
 //! 2. The shared component's props (theme toggle, language picker, logout
-//!    button, print button) match exactly what the Snake UI needs; no
+//!    button, print button) match exactly what the Defend UI needs; no
 //!    app-specific overrides are required.
-//! 3. Should the Snake UI later need a different header (e.g. omitting the
+//! 3. Should the Defend UI later need a different header (e.g. omitting the
 //!    print button), this module becomes the single place to swap in a
 //!    local thin wrapper without touching call sites.
 //!

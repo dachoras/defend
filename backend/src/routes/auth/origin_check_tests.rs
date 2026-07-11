@@ -48,15 +48,15 @@ fn assert_forbidden(state: &AppState, origin: Option<&str>, allow_null: bool) {
 
 #[test]
 fn missing_origin_rejected() {
-    assert_forbidden(&build_state("https://snake.example.com"), None, false);
+    assert_forbidden(&build_state("https://defend.example.com"), None, false);
 }
 
 #[test]
 fn matching_origin_allowed() {
-    let state = build_state("https://snake.example.com");
+    let state = build_state("https://defend.example.com");
     assert!(
         assert_origin_allowed(
-            &post_with_origin(Some("https://snake.example.com")),
+            &post_with_origin(Some("https://defend.example.com")),
             &state,
             false
         )
@@ -67,7 +67,7 @@ fn matching_origin_allowed() {
 #[test]
 fn cross_origin_rejected() {
     assert_forbidden(
-        &build_state("https://snake.example.com"),
+        &build_state("https://defend.example.com"),
         Some("https://evil.example.com"),
         false,
     );
@@ -76,7 +76,7 @@ fn cross_origin_rejected() {
 #[test]
 fn null_origin_rejected_by_default() {
     assert_forbidden(
-        &build_state("https://snake.example.com"),
+        &build_state("https://defend.example.com"),
         Some("null"),
         false,
     );
@@ -84,7 +84,7 @@ fn null_origin_rejected_by_default() {
 
 #[test]
 fn null_origin_allowed_when_opt_in() {
-    let state = build_state("https://snake.example.com");
+    let state = build_state("https://defend.example.com");
     assert!(assert_origin_allowed(&post_with_origin(Some("null")), &state, true).is_ok());
 }
 
@@ -120,7 +120,7 @@ fn loopback_wildcard_accepts_any_port() {
 
 #[test]
 fn production_rejects_loopback_origin() {
-    let state = build_state("https://snake.example.com");
+    let state = build_state("https://defend.example.com");
     let resp = assert_origin_allowed(
         &post_with_origin(Some("http://localhost:4501")),
         &state,

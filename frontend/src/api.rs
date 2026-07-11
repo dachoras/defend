@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-//! HTTP API client for the Snake frontend.
+//! HTTP API client for the Defend frontend.
 //!
 //! Wraps [`gloo_net::http::Request`] calls to the backend endpoints actually
 //! exercised by the game UI: PIN-gated auth, configuration loading, and the
@@ -47,7 +47,7 @@ impl StorageService {
     }
 }
 
-/// REST endpoints exposed by the Snake backend.
+/// REST endpoints exposed by the Defend backend.
 pub struct ApiService;
 
 /// One row of the global high-score table.

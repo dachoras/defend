@@ -1,4 +1,4 @@
-//! Black-box integration tests for snake-backend edge cases that the
+//! Black-box integration tests for defend-backend edge cases that the
 //! existing suites don't cover: service-worker fallback path, PWA
 //! manifest overrides, HTML template substitution, invalid cookies,
 //! malformed/missing JSON, empty leaderboard, and service-worker

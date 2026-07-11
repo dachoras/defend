@@ -48,7 +48,7 @@ pub fn resolve_port() -> u16 {
     port_from_env(std::env::var(PORT_ENV).ok().as_deref())
 }
 
-/// Load the snake `.env` files, gracefully ignoring missing paths.
+/// Load the defend `.env` files, gracefully ignoring missing paths.
 ///
 /// Order: `/app/data/.env` first (container), then the current-directory
 /// `.env` for local dev.
@@ -97,7 +97,7 @@ pub fn build_state(config: AppConfig) -> AppState {
         "state initialised"
     );
     // Log the leaderboard file location at startup so operators know
-    // where scores persist — important when `SNAKE_DATA_DIR` is set
+    // where scores persist — important when `DEFEND_DATA_DIR` is set
     // somewhere unexpected. Without this line, finding the file
     // requires code-diving.
     tracing::info!(

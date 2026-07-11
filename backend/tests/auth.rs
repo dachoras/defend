@@ -1,4 +1,4 @@
-//! Black-box integration tests for the snake backend's auth and redirect endpoints.
+//! Black-box integration tests for the defend backend's auth and redirect endpoints.
 
 mod common;
 
