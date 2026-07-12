@@ -5,7 +5,7 @@
 # Build stage: rust official image (reliable wasm32 + trunk). Runtime is pure UBI.
 #
 # Build (Podman):
-#   cd ~/Projects/ubermetroid/defend
+#   cd ~/projects/dachoras/defend
 #   podman build -f Containerfile.ubi -t defend-ubi:latest .
 #
 # Run:
@@ -18,7 +18,7 @@
 #
 
 # Compare size:
-#   podman images | grep -E 'defend-ubi|ubermetroid/defend'
+#   podman images | grep -E 'defend-ubi|dachoras/defend'
 # =============================================================================
 
 # ---------- build: compile backend + WASM frontend ----------
