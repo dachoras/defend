@@ -152,7 +152,7 @@ dependencies = [
 
 [[package]]
 name = "backend"
-version = "0.1.14"
+version = "0.1.20"
 dependencies = [
  "axum",
  "axum-extra",
@@ -167,7 +167,7 @@ dependencies = [
  "serde_json",
  "sha2",
  "shared-backend",
- "shared-core",
+ "shared-core 3.0.29",
  "tempfile",
  "thiserror 2.0.18",
  "time",
@@ -434,7 +434,7 @@ dependencies = [
 
 [[package]]
 name = "frontend"
-version = "0.1.14"
+version = "0.1.20"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -444,7 +444,7 @@ dependencies = [
  "percent-encoding",
  "serde",
  "serde_json",
- "shared-core",
+ "shared-core 3.0.29",
  "shared-frontend",
  "wasm-bindgen",
  "wasm-bindgen-futures",
@@ -1604,7 +1604,7 @@ dependencies = [
  "ipnet",
  "rusqlite",
  "serde",
- "shared-core",
+ "shared-core 3.0.19",
  "thiserror 2.0.18",
  "tokio",
  "tower-http",
@@ -1622,13 +1622,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "shared-core"
+version = "3.0.29"
+source = "git+https://github.com/UberMetroid/shared-assets?tag=v3.0.29#cad2021cf1809e6ac00dce80beab5f241272fc69"
+dependencies = [
+ "constant_time_eq",
+ "serde",
+]
+
+[[package]]
 name = "shared-frontend"
 version = "3.0.19"
 source = "git+https://github.com/UberMetroid/shared-assets?tag=v3.0.19#2c5b0659ef7bcda53bec6d9c856c57dea9d06ee9"
 dependencies = [
  "js-sys",
  "serde",
- "shared-core",
+ "shared-core 3.0.19",
  "wasm-bindgen",
  "web-sys",
  "yew",
