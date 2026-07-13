@@ -1,4 +1,4 @@
-# Defend
+# <img src="assets/icon.png" width="32" height="32" valign="middle"> Defend
 
 Retro-neon space shooter game.
 
