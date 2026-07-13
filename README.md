@@ -1,5 +1,7 @@
 # <img src="assets/icon.png" width="32" height="32" valign="middle"> Defend
 
+[![CI](https://github.com/dachoras/defend/actions/workflows/ci.yml/badge.svg)](https://github.com/dachoras/defend/actions/workflows/ci.yml)
+
 Retro-neon space shooter game.
 
 ## Quick Start
