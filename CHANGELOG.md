@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.21] - 2026-07-19
+
+### Changed
+- **Rebrand to studio2201**: README, container labels, docker-compose, and Cargo
+  metadata now reference `studio2201/defend`. CI badge URL and GHCR image name
+  updated accordingly.
+- **Fixed SCAN_ env-var copy-paste** in `docker-compose.yml`: all `SCAN_*`
+  environment variables renamed to `DEFEND_*` (data path, PIN, allowed origins,
+  base URL, site title). Defend now correctly uses its own env-var namespace.
+- **Fixed manifest description typo** ("defendner" → "defender") and aligned
+  wording with the README tagline.
+- **Favicon cache-bust query** bumped `?v=0.1.0` → `?v=0.1.21` in
+  `frontend/index.html` to invalidate stale PWA icon cache.
+
 ## [0.1.0] - 2026-07-03
 
 ### Added
