@@ -1,12 +1,13 @@
 # Defend docker-compose.
 #
-# This file ships a complete, runnable recipe for the `ghcr.io/dachoras/defend`
-# image (UBI container from GHCR
+# This file ships a complete, runnable recipe for the `ghcr.io/studio2201/defend`
+# image (UBI container from GHCR).
+# Configure the deployment by exporting variables in the
 # host shell env or a `.env` file in the same directory.
 #
 # --- MANDATORY for a working deployment --------------------------------------
 #   1. `image:`        — pulls the prebuilt UBI container image from GHCR
-#   2. `volumes:`      — bind-mounts `${SCAN_DATA_PATH}` to `/app/data` so the
+#   2. `volumes:`      — bind-mounts `${DEFEND_DATA_PATH}` to `/app/data` so the
 #                       leaderboard and log files survive container restarts.
 #                       Without this volume, scores vanish every time the
 #                       container recreates.
@@ -18,10 +19,10 @@
 #                       `https://defend.example.com`); wrong value breaks
 #                       HTTPS cookie flagging, PWA install, and the
 #                       Origin-header CSRF defense.
-#   * `SCAN_PIN`       — empty disables auth entirely. Set a 4-64 char PIN
+#   * `DEFEND_PIN`     — empty disables auth entirely. Set a 4-64 char PIN
 #                       for any non-toy deployment.
 #   * `MAX_ATTEMPTS`   — brute-force lockout threshold per IP, default 5.
-#   * `ALLOWED_ORIGINS`— CORS allow-list. The default `*` is safe because
+#   * `DEFEND_ALLOWED_ORIGINS` — CORS allow-list. The default `*` is safe because
 #                       auth cookies are `SameSite=Strict`, but explicit
 #                       values are nicer for ops.
 #   * `TZ`             — log timestamps; defaults to UTC.
@@ -37,9 +38,9 @@
 services:
   defend:
     # (1) MANDATORY: image to run. Pulled from GHCR. To use a
-    # locally-built image instead, replace with `image: ghcr.io/dachoras/defend:latest`
+    # locally-built image instead, replace with `image: ghcr.io/studio2201/defend:latest`
     # after `podman build -f Containerfile.ubi
-    image: ghcr.io/dachoras/defend:latest
+    image: ghcr.io/studio2201/defend:latest
     container_name: defend
     restart: unless-stopped
 
@@ -48,9 +49,9 @@ services:
     # so the bind mount lands on a writable directory without an extra
     # `chown`.
     volumes:
-      # `${SCAN_DATA_PATH:-./data}` defaults to a host-local `./data/`;
-      # set `SCAN_DATA_PATH=/var/lib/defend` in production.
-      - ${SCAN_DATA_PATH:-./data}:/app/data
+      # `${DEFEND_DATA_PATH:-./data}` defaults to a host-local `./data/`;
+      # set `DEFEND_DATA_PATH=/var/lib/defend` in production.
+      - ${DEFEND_DATA_PATH:-./data}:/app/data
 
     # (3) MANDATORY: port mapping. Default `4504:4504` is the documented
     # port for both the image (per the `Env = ["PORT=4504"]` block in
@@ -70,22 +71,22 @@ services:
       # Must match the PUBLIC URL the browser uses to reach Defend. Wrong
       # value means `Secure` cookie flagging, PWA install metadata, and
       # Origin-header CSRF validation all break.
-      BASE_URL: ${SCAN_BASE_URL:-http://localhost:4504}
+      BASE_URL: ${DEFEND_BASE_URL:-http://localhost:4504}
 
       # ---- Auth & hardening ----
       # 4-64 characters. Frontend accepts 4-10 ASCII digits; the backend
       # accepts any 4-64 chars. Empty disables auth entirely.
-      SCAN_PIN: ${SCAN_PIN:-}
+      DEFEND_PIN: ${DEFEND_PIN:-}
 
       # CORS allow-list. `*` is safe in production too because auth
       # cookies are `SameSite=Strict`; explicit value is preferred.
-      ALLOWED_ORIGINS: ${SCAN_ALLOWED_ORIGINS:-*}
+      ALLOWED_ORIGINS: ${DEFEND_ALLOWED_ORIGINS:-*}
 
       # Per-IP PIN brute-force lockout threshold.
       MAX_ATTEMPTS: ${MAX_ATTEMPTS:-5}
 
       # ---- UI feature flags (header chrome) ----
-      SITE_TITLE: ${SCAN_SITE_TITLE:-Defend}
+      SITE_TITLE: ${DEFEND_SITE_TITLE:-Defend}
       ENABLE_TRANSLATION: ${ENABLE_TRANSLATION:-true}
       ENABLE_THEMES: ${ENABLE_THEMES:-true}
       ENABLE_PRINT: ${ENABLE_PRINT:-true}

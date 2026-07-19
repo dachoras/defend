@@ -1,6 +1,6 @@
 {
   "background_color": "#000000",
-  "description": "An orbital hazard sector defendner",
+  "description": "An orbital hazard sector defender",
   "display": "standalone",
   "icons": [
     { "sizes": "192x192", "src": "favicon.png", "type": "image/png" },

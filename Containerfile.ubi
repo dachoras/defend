@@ -5,7 +5,7 @@
 # Build stage: rust official image (reliable wasm32 + trunk). Runtime is pure UBI.
 #
 # Build (Podman):
-#   cd ~/projects/dachoras/defend
+#   cd ~/projects/studio2201/defend
 #   podman build -f Containerfile.ubi -t defend-ubi:latest .
 #
 # Run:
@@ -18,7 +18,7 @@
 #
 
 # Compare size:
-#   podman images | grep -E 'defend-ubi|dachoras/defend'
+#   podman images | grep -E 'defend-ubi|studio2201/defend'
 # =============================================================================
 
 # ---------- build: compile backend + WASM frontend ----------
@@ -65,7 +65,7 @@ FROM registry.access.redhat.com/ubi9/ubi-minimal:latest
 
 LABEL org.opencontainers.image.title="defend" \
       org.opencontainers.image.description="defend (UBI9 minimal pilot)" \
-      org.opencontainers.image.source="https://github.com/UberMetroid/defend" \
+      org.opencontainers.image.source="https://github.com/studio2201/defend" \
       org.opencontainers.image.base.name="registry.access.redhat.com/ubi9/ubi-minimal"
 
 # ca-certificates for HTTPS outbound; wget for HEALTHCHECK.

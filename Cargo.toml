@@ -8,10 +8,10 @@ resolver = "2"
 [workspace.package]
 version = "0.1.21"
 edition = "2024"
-authors = ["UberMetroid"]
+authors = ["studio2201"]
 license = "Apache-2.0"
-repository = "https://github.com/UberMetroid/defend"
-homepage = "https://github.com/UberMetroid/defend"
+repository = "https://github.com/studio2201/defend"
+homepage = "https://github.com/studio2201/defend"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
