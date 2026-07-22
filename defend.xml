@@ -10,7 +10,7 @@
   <Support>https://github.com/studio2201/defend/issues</Support>
   <Project>https://github.com/studio2201/defend</Project>
   <Overview>Interactive self-hosted security playground and firewall defense simulator built in Rust.</Overview>
-  <Category>Tools: Security Network:Management</Category>
+  <Category>Game:Other Network:Web</Category>
   <WebUI>http://[IP]:[PORT:4504]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/studio2201/unraid-templates/main/templates/defend.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/studio2201/unraid-templates/main/icons/defend.png</Icon>
