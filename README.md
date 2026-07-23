@@ -94,6 +94,10 @@ Distributed under the Apache 2.0 License. See [LICENSE](LICENSE) for details.
 
 ---
 
+### Project Banner Showcase
+
+Official **Defend** project banner depicting energetic retro-neon space defender gameplay visual aesthetics.
+
 <p align="center">
   <a href="https://github.com/studio2201/defend">
     <img src="assets/defend-header.jpg" alt="studio2201 banner" width="100%">
