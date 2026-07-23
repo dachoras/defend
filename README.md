@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/studio2201/.github/master/profile/assets/defend.png" width="48" height="48" valign="middle"> Defend
+  <img src="assets/icon.png" width="48" height="48" valign="middle"> Defend
 </h1>
 
 <p align="center">
