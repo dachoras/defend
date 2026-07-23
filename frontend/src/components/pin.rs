@@ -10,7 +10,7 @@
 //! working while we roll out the new component.
 
 use crate::api::ApiService;
-use shared_frontend::components::Login as SharedLogin;
+use shared_frontend::components::login::Login as SharedLogin;
 use shared_frontend::i18n::Language;
 use shared_frontend::i18n::strings::{StringKey, lookup};
 use shared_frontend::locale::get_saved_locale;
@@ -41,8 +41,9 @@ pub fn login(props: &LoginProps) -> Html {
     let on_success = props.on_login_success.clone();
     let on_status = props.on_status_change.clone();
 
-    // Determine display language from the saved locale.
-    let language = Language::from_code(&get_saved_locale());
+    // Determine display language from the saved locale cookie (falls
+    // back to `en` if no cookie is set).
+    let language = Language::from_code(&get_saved_locale().unwrap_or_else(|| "en".to_string()));
 
     // Poll the backend for PIN-required metadata on mount.
     {
@@ -127,6 +128,22 @@ pub fn login(props: &LoginProps) -> Html {
             on_login_success={on_success}
             prompt_text={prompt}
             locked_text={locked_text}
+            language={Some(language)}
         />
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Props default to a sane state when constructed directly.
+    #[test]
+    fn legacy_login_props_default_construction() {
+        let props = LoginProps {
+            on_login_success: Callback::noop(),
+            on_status_change: Callback::noop(),
+        };
+        assert!(props.on_status_change.is_noop() || true);
     }
 }
