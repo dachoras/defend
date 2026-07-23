@@ -141,14 +141,9 @@ pub fn defend_board(props: &DefendBoardProps) -> Html {
     };
 
     // Computes the red filled portion of the boss health bar (width scaled up to 50 SVG units).
-    let boss_health_bar_width = if let Some(bh) = state.boss_health {
-        Some(format!(
-            "{}",
-            (bh as f64 / state.boss_max_health as f64) * 50.0
-        ))
-    } else {
-        None
-    };
+    let boss_health_bar_width = state
+        .boss_health
+        .map(|bh| format!("{}", (bh as f64 / state.boss_max_health as f64) * 50.0));
 
     html! {
         <div class="defend-board-container">

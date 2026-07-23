@@ -22,7 +22,7 @@ pub fn defend_game(props: &Props) -> Html {
     let interval_handle = use_mut_ref(|| None::<Interval>);
     let pressed_keys = use_mut_ref(std::collections::HashSet::<String>::new);
     let touch_controls = use_mut_ref(|| (false, false, false)); // (left, right, fire)
-    let locale = use_context::<LocaleContext>().expect("locale context");
+    let locale = use_context::<LocaleContext>().unwrap_or_default();
 
     // Keyboard and timer lifecycle manager
     {
@@ -42,26 +42,17 @@ pub fn defend_game(props: &Props) -> Html {
                 pressed_keys_up.borrow_mut().remove(&event.key());
             }) as Box<dyn FnMut(_)>);
 
-            let window = web_sys::window().unwrap();
-            window
-                .add_event_listener_with_callback("keydown", on_keydown.as_ref().unchecked_ref())
-                .unwrap();
-            window
-                .add_event_listener_with_callback("keyup", on_keyup.as_ref().unchecked_ref())
-                .unwrap();
+            if let Some(window) = web_sys::window() {
+                let _ = window.add_event_listener_with_callback("keydown", on_keydown.as_ref().unchecked_ref());
+                let _ = window.add_event_listener_with_callback("keyup", on_keyup.as_ref().unchecked_ref());
+            }
 
             move || {
                 *interval_handle.borrow_mut() = None;
-                let window = web_sys::window().unwrap();
-                window
-                    .remove_event_listener_with_callback(
-                        "keydown",
-                        on_keydown.as_ref().unchecked_ref(),
-                    )
-                    .unwrap();
-                window
-                    .remove_event_listener_with_callback("keyup", on_keyup.as_ref().unchecked_ref())
-                    .unwrap();
+                if let Some(window) = web_sys::window() {
+                    let _ = window.remove_event_listener_with_callback("keydown", on_keydown.as_ref().unchecked_ref());
+                    let _ = window.remove_event_listener_with_callback("keyup", on_keyup.as_ref().unchecked_ref());
+                }
             }
         });
     }

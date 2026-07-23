@@ -36,6 +36,15 @@ pub struct LocaleContext {
     pub on_change: Callback<String>,
 }
 
+impl Default for LocaleContext {
+    fn default() -> Self {
+        Self {
+            current: "en".to_string(),
+            on_change: Callback::noop(),
+        }
+    }
+}
+
 impl LocaleContext {
     /// Convenience wrapper around [`translate`] using `self.current`.
     pub fn t(&self, key: &str) -> String {

@@ -114,29 +114,29 @@ impl Component for App {
     fn rendered(&mut self, ctx: &Context<Self>, first_render: bool) {
         if first_render {
             use wasm_bindgen::JsCast;
-            // The renderer only runs in the browser, so `window()` is safe to
-            // unwrap. Documented per the "no unwrap in non-test code" rule.
-            let window = web_sys::window().expect("renderer runs in a browser window");
+            if let Some(window) = web_sys::window() {
+                let link_online = ctx.link().clone();
+                let on_online = wasm_bindgen::prelude::Closure::<dyn FnMut(_)>::new(
+                    move |_: web_sys::Event| {
+                        link_online.send_message(Msg::OnlineStatusChanged(true));
+                    },
+                );
+                let _ = window
+                    .add_event_listener_with_callback("online", on_online.as_ref().unchecked_ref());
+                on_online.forget();
 
-            let link_online = ctx.link().clone();
-            let on_online =
-                wasm_bindgen::prelude::Closure::<dyn FnMut(_)>::new(move |_: web_sys::Event| {
-                    link_online.send_message(Msg::OnlineStatusChanged(true));
-                });
-            window
-                .add_event_listener_with_callback("online", on_online.as_ref().unchecked_ref())
-                .expect("failed to register online listener");
-            on_online.forget();
-
-            let link_offline = ctx.link().clone();
-            let on_offline =
-                wasm_bindgen::prelude::Closure::<dyn FnMut(_)>::new(move |_: web_sys::Event| {
-                    link_offline.send_message(Msg::OnlineStatusChanged(false));
-                });
-            window
-                .add_event_listener_with_callback("offline", on_offline.as_ref().unchecked_ref())
-                .expect("failed to register offline listener");
-            on_offline.forget();
+                let link_offline = ctx.link().clone();
+                let on_offline = wasm_bindgen::prelude::Closure::<dyn FnMut(_)>::new(
+                    move |_: web_sys::Event| {
+                        link_offline.send_message(Msg::OnlineStatusChanged(false));
+                    },
+                );
+                let _ = window.add_event_listener_with_callback(
+                    "offline",
+                    on_offline.as_ref().unchecked_ref(),
+                );
+                on_offline.forget();
+            }
 
             // Service-worker update handshake.
             //
@@ -211,11 +211,12 @@ impl Component for App {
                     }
                 });
 
-            if let Some(sw_container) = js_sys::Reflect::get(
-                window.navigator().as_ref(),
-                &wasm_bindgen::JsValue::from_str("serviceWorker"),
-            )
-            .ok()
+            if let Some(navigator) = web_sys::window().map(|w| w.navigator())
+                && let Some(sw_container) = js_sys::Reflect::get(
+                    navigator.as_ref(),
+                    &wasm_bindgen::JsValue::from_str("serviceWorker"),
+                )
+                .ok()
                 && let Ok(add_fn) = js_sys::Reflect::get(
                     &sw_container,
                     &wasm_bindgen::JsValue::from_str("addEventListener"),

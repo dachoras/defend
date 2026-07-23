@@ -16,7 +16,7 @@ impl GameState {
         // 2. Drone Helper Weapons: Auto-fire helper lasers at closest targets
         if self.helper_time > 0 {
             self.helper_time -= 1;
-            if self.ticks % 25 == 0 && !self.threats.is_empty() {
+            if self.ticks.is_multiple_of(25) && !self.threats.is_empty() {
                 let (mut target_idx, mut min_dy) = (0, f64::MAX);
                 for (i, t) in self.threats.iter().enumerate() {
                     let dy = 92.0 - t.y;
@@ -57,7 +57,7 @@ impl GameState {
                 }
             }
             self.threats = rem;
-            if self.ticks % 2 == 0 {
+            if self.ticks.is_multiple_of(2) {
                 let py = js_sys::Math::random() * 80.0;
                 self.particles.push(Particle {
                     x: bx + js_sys::Math::random() * 2.0 - 1.0,
@@ -74,7 +74,10 @@ impl GameState {
             self.powerup_y += 0.55;
             if self.powerup_y > 100.0 {
                 self.powerup_type = 0;
-            } else if self.powerup_y >= 90.0 && self.powerup_y <= 95.0 && (self.powerup_x - self.player_x).abs() < 5.0 {
+            } else if self.powerup_y >= 90.0
+                && self.powerup_y <= 95.0
+                && (self.powerup_x - self.player_x).abs() < 5.0
+            {
                 if self.powerup_type == 1 {
                     self.player_shield = (self.player_shield + 25).min(100);
                 } else {
@@ -83,7 +86,7 @@ impl GameState {
                 self.spawn_explosion(self.powerup_x, self.powerup_y, 10);
                 self.powerup_type = 0;
             }
-        } else if self.ticks % 300 == 0 {
+        } else if self.ticks.is_multiple_of(300) {
             self.powerup_x = js_sys::Math::random() * 80.0 + 10.0;
             self.powerup_y = 0.0;
             self.powerup_type = if js_sys::Math::random() > 0.5 { 1 } else { 2 };
@@ -92,7 +95,7 @@ impl GameState {
         // 5. Weapon Charging
         if self.is_charging {
             self.charge_level = (self.charge_level + 0.025).min(2.0);
-            if self.ticks % 2 == 0 {
+            if self.ticks.is_multiple_of(2) {
                 let angle = js_sys::Math::random() * std::f64::consts::TAU;
                 let dist = js_sys::Math::random() * 8.0 + 4.0;
                 let px = self.player_x + angle.cos() * dist;
@@ -113,7 +116,7 @@ impl GameState {
             if self.boss_x > 90.0 || self.boss_x < 10.0 {
                 self.boss_vx = -self.boss_vx;
             }
-            if self.ticks % 40 == 0 {
+            if self.ticks.is_multiple_of(40) {
                 self.threats.push(Threat {
                     x: self.boss_x,
                     y: 17.0,
@@ -161,28 +164,54 @@ impl GameState {
         if self.boss_health.is_none() {
             let spawn_interval = (35 - (self.wave as i32 * 2)).max(10) as u64;
             if self.ticks.is_multiple_of(spawn_interval) {
-                let (x, is_s) = (js_sys::Math::random() * 90.0 + 5.0, js_sys::Math::random() > 0.5);
+                let (x, is_s) = (
+                    js_sys::Math::random() * 90.0 + 5.0,
+                    js_sys::Math::random() > 0.5,
+                );
                 let (spd, sz, k) = if is_s {
-                    (js_sys::Math::random() * 0.35 + 0.45 + (self.wave as f64 * 0.05), 2.2, ThreatType::Scout)
+                    (
+                        js_sys::Math::random() * 0.35 + 0.45 + (self.wave as f64 * 0.05),
+                        2.2,
+                        ThreatType::Scout,
+                    )
                 } else {
-                    (js_sys::Math::random() * 0.25 + 0.25 + (self.wave as f64 * 0.04), 3.0, ThreatType::Asteroid)
+                    (
+                        js_sys::Math::random() * 0.25 + 0.25 + (self.wave as f64 * 0.04),
+                        3.0,
+                        ThreatType::Asteroid,
+                    )
                 };
-                self.threats.push(Threat { x, y: 0.0, speed: spd, size: sz, kind: k });
+                self.threats.push(Threat {
+                    x,
+                    y: 0.0,
+                    speed: spd,
+                    size: sz,
+                    kind: k,
+                });
             }
-            if self.ticks % 75 == 0 {
-                if let Some(t) = self.threats.iter().find(|t| t.kind == ThreatType::Scout && t.y > 10.0 && t.y < 70.0) {
-                    let bx = t.x;
-                    let by = t.y + 2.0;
-                    let bspd = t.speed + 0.6;
-                    self.threats.push(Threat { x: bx, y: by, speed: bspd, size: 0.9, kind: ThreatType::Bullet });
-                }
+            if self.ticks.is_multiple_of(75)
+                && let Some(t) = self
+                    .threats
+                    .iter()
+                    .find(|t| t.kind == ThreatType::Scout && t.y > 10.0 && t.y < 70.0)
+            {
+                let bx = t.x;
+                let by = t.y + 2.0;
+                let bspd = t.speed + 0.6;
+                self.threats.push(Threat {
+                    x: bx,
+                    y: by,
+                    speed: bspd,
+                    size: 0.9,
+                    kind: ThreatType::Bullet,
+                });
             }
         }
 
         // 8. Wave Progression / Boss Spawning
         if self.ticks.is_multiple_of(600) && self.boss_health.is_none() {
             self.wave += 1;
-            if self.wave % 10 == 0 {
+            if self.wave.is_multiple_of(10) {
                 let hp = 150 + self.wave * 10;
                 self.boss_health = Some(hp);
                 self.boss_max_health = hp;
@@ -197,7 +226,8 @@ impl GameState {
             laser.x += laser.vx;
             laser.y += laser.vy;
         }
-        self.lasers.retain(|l| l.y > 0.0 && l.y < 100.0 && l.x > 0.0 && l.x < 100.0);
+        self.lasers
+            .retain(|l| l.y > 0.0 && l.y < 100.0 && l.x > 0.0 && l.x < 100.0);
 
         // 10. Move threats
         for threat in &mut self.threats {
@@ -209,7 +239,11 @@ impl GameState {
         let mut new_threats = Vec::new();
         for mut threat in old_threats {
             if threat.y >= 90.0 && threat.y <= 95.0 && (threat.x - self.player_x).abs() < 5.0 {
-                let dmg = if threat.kind == ThreatType::Bullet { 15 } else { 20 };
+                let dmg = if threat.kind == ThreatType::Bullet {
+                    15
+                } else {
+                    20
+                };
                 self.player_shield = self.player_shield.saturating_sub(dmg);
                 self.spawn_explosion(threat.x, threat.y, 8);
                 if self.player_shield == 0 {
