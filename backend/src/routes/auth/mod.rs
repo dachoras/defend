@@ -69,14 +69,11 @@ mod tests {
     use tokio::sync::{Mutex, RwLock};
 
     fn build_state(pin: Option<&str>) -> AppState {
-        let mut server = crate::config::AppConfig::load();
-        server.pin = pin.map(|s| s.to_string());
-        let cfg = AppConfig {
-            server,
-            page_history_cookie_age_days: 1,
-            node_env: "test".to_string(),
-            version: "test".to_string(),
-        };
+        let mut cfg = AppConfig::load_from_env(4401);
+        cfg.pin = pin.map(|s| s.to_string());
+        cfg.page_history_cookie_age_days = 1;
+        cfg.node_env = "test".to_string();
+        cfg.version = "test".to_string();
         let tmp = TempDir::new().expect("tempdir");
         Arc::new(AppStateInner {
             config: cfg,

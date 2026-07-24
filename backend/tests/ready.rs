@@ -3,6 +3,7 @@
 mod common;
 
 use axum::body::to_bytes;
+use backend::config::AppConfig;
 use axum::http::{Request, StatusCode};
 use tower::ServiceExt;
 
@@ -39,14 +40,11 @@ async fn ready_returns_503_when_data_dir_unwritable() {
     std::fs::create_dir_all(&web_root).expect("web");
     std::fs::write(web_root.join("index.html"), b"<html></html>").expect("index");
 
-    let mut server = shared_backend::server::ServerConfig::from_env("Defend");
-    server.base_url = "http://localhost:4401".to_string();
-    let cfg = backend::config::AppConfig {
-        server,
-        page_history_cookie_age_days: 1,
-        node_env: "test".to_string(),
-        version: "test".to_string(),
-    };
+    let mut cfg = backend::config::AppConfig::load_from_env(4401);
+    cfg.base_url = "http://localhost:4401".to_string();
+    cfg.page_history_cookie_age_days = 1;
+    cfg.node_env = "test".to_string();
+    cfg.version = "test".to_string();
     let leaderboard = data_dir.join("leaderboard.json");
     let state: backend::state::AppState = std::sync::Arc::new(backend::state::AppStateInner {
         config: cfg,

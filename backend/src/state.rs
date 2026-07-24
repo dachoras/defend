@@ -106,11 +106,12 @@ mod tests {
     fn build_state(dir: &std::path::Path) -> AppState {
         let leaderboard = crate::services::paths::leaderboard_file(dir);
         Arc::new(AppStateInner {
-            config: AppConfig {
-                server: crate::config::AppConfig::load(),
-                page_history_cookie_age_days: 1,
-                node_env: "test".to_string(),
-                version: "test".to_string(),
+            config: {
+                let mut cfg = crate::config::AppConfig::load_from_env(4401);
+                cfg.page_history_cookie_age_days = 1;
+                cfg.node_env = "test".to_string();
+                cfg.version = "test".to_string();
+                cfg
             },
             data_dir: dir.to_path_buf(),
             leaderboard_file: leaderboard,

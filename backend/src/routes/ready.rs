@@ -86,14 +86,11 @@ mod tests {
     use tokio::sync::{Mutex, RwLock};
 
     fn build_state(tmp: &TempDir, leaderboard_exists: bool) -> AppState {
-        let mut server = crate::config::AppConfig::load();
-        server.base_url = "http://localhost:4501".to_string();
-        let cfg = AppConfig {
-            server,
-            page_history_cookie_age_days: 1,
-            node_env: "test".to_string(),
-            version: "test".to_string(),
-        };
+        let mut cfg = AppConfig::load_from_env(4401);
+        cfg.base_url = "http://localhost:4501".to_string();
+        cfg.page_history_cookie_age_days = 1;
+        cfg.node_env = "test".to_string();
+        cfg.version = "test".to_string();
         let leaderboard = tmp.path().join("leaderboard.json");
         if leaderboard_exists {
             std::fs::write(&leaderboard, b"[]").expect("seed leaderboard");
@@ -135,14 +132,11 @@ mod tests {
         // other handle exists yet at this point).
         let blocking_file = tmp.path().join("blocker");
         std::fs::write(&blocking_file, b"x").expect("blocker");
-        let mut server = crate::config::AppConfig::load();
-        server.base_url = "http://localhost:4501".to_string();
-        let cfg = AppConfig {
-            server,
-            page_history_cookie_age_days: 1,
-            node_env: "test".to_string(),
-            version: "test".to_string(),
-        };
+        let mut cfg = AppConfig::load_from_env(4401);
+        cfg.base_url = "http://localhost:4501".to_string();
+        cfg.page_history_cookie_age_days = 1;
+        cfg.node_env = "test".to_string();
+        cfg.version = "test".to_string();
         let leaderboard = tmp.path().join("leaderboard.json");
         std::fs::write(&leaderboard, b"[]").expect("seed leaderboard");
         let state: AppState = Arc::new(AppStateInner {

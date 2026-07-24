@@ -28,14 +28,11 @@ use backend::state::{AppState, AppStateInner};
 pub const TEST_ADDR: SocketAddr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 12345);
 
 pub fn make_state(pin: Option<&str>, data_dir: &Path, web_root: &Path) -> AppState {
-    let mut server = shared_backend::server::ServerConfig::from_env("Defend");
-    server.pin = pin.map(str::to_string);
-    let cfg = AppConfig {
-        server,
-        page_history_cookie_age_days: 1,
-        node_env: "test".to_string(),
-        version: "test".to_string(),
-    };
+    let mut cfg = AppConfig::load_from_env(4401);
+    cfg.pin = pin.map(str::to_string);
+    cfg.page_history_cookie_age_days = 1;
+    cfg.node_env = "test".to_string();
+    cfg.version = "test".to_string();
     Arc::new(AppStateInner {
         config: cfg,
         data_dir: data_dir.to_path_buf(),

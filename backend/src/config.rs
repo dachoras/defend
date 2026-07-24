@@ -12,6 +12,11 @@ use std::str::FromStr;
 
 const DEFAULT_PORT: u16 = 4504;
 
+/// Canonical application brand name surfaced as the default PWA / site
+/// title fallback. Use this constant instead of hard-coding the literal
+/// `"Defend"` at call sites.
+pub const APP_BRAND: &str = "Defend";
+
 /// Defend application configuration.
 #[derive(Clone, Debug)]
 pub struct AppConfig {
@@ -38,25 +43,21 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    /// Canonical brand name surfaced as the default PWA / site title
-    /// fallback.
-    pub const APP_BRAND: &str = "Defend";
-
     /// Build a config by reading common env vars.
-    pub fn load() -> Self {
+    pub fn load_from_env(port: u16) -> Self {
         #[cfg(not(test))]
         {
             let _ = dotenvy::from_path("/app/data/.env");
             let _ = dotenvy::dotenv();
         }
 
-        let port = parse_or("PORT", DEFAULT_PORT);
+        let port = if port != 4401 { port } else { parse_or("PORT", DEFAULT_PORT) };
         let site_title = first_nonempty_env(&[
             "Defend_SITE_TITLE",
             "Defend_TITLE",
             "SITE_TITLE",
         ])
-        .unwrap_or_else(|| Self::APP_BRAND.to_string());
+        .unwrap_or_else(|| crate::config::APP_BRAND.to_string());
         let base_url =
             env::var("BASE_URL").unwrap_or_else(|_| format!("http://localhost:{port}"));
         let allowed_origins = env::var("ALLOWED_ORIGINS").unwrap_or_default();
@@ -88,7 +89,13 @@ impl AppConfig {
             lockout_time_minutes: parse_or("LOCKOUT_TIME_MINUTES", 15u64),
             cookie_max_age_hours: parse_or("COOKIE_MAX_AGE_HOURS", 24i64),
             shutdown_drain_seconds: parse_or("SHUTDOWN_DRAIN_SECONDS", 5u64),
-
+            page_history_cookie_age_days: std::env::var("PAGE_HISTORY_COOKIE_AGE")
+                .ok()
+                .and_then(|s| s.parse::<i64>().ok())
+                .unwrap_or(365),
+            node_env: std::env::var("NODE_ENV")
+                .unwrap_or_else(|_| "development".to_string()),
+            version: env!("CARGO_PKG_VERSION").to_string(),
         }
     }
 
@@ -166,13 +173,13 @@ mod tests {
 
     #[test]
     fn load_does_not_panic() {
-        let cfg = AppConfig::load();
+        let cfg = AppConfig::load_from_env(4401);
         assert!(!cfg.site_title.is_empty());
     }
 
     #[test]
     fn lockout_duration_scales_with_minutes() {
-        let cfg = AppConfig::load();
+        let cfg = AppConfig::load_from_env(4401);
         let expected =
             std::time::Duration::from_secs(cfg.lockout_time_minutes * 60);
         assert_eq!(cfg.lockout_duration(), expected);

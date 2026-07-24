@@ -57,14 +57,12 @@ mod tests {
         metrics.inc_requests();
         metrics.inc_requests();
 
-        let mut server = crate::config::AppConfig::load();
+        let mut server = crate::config::AppConfig::load_from_env(4401);
         server.base_url = "http://localhost:4501".to_string();
-        let cfg = AppConfig {
-            server,
-            page_history_cookie_age_days: 1,
-            node_env: "test".to_string(),
-            version: "9.9.9".to_string(),
-        };
+        let mut cfg = AppConfig::load_from_env(4401);
+        cfg.page_history_cookie_age_days = 1;
+        cfg.node_env = "test".to_string();
+        cfg.version = "9.9.9".to_string();
         let state: AppState = Arc::new(AppStateInner {
             config: cfg,
             data_dir: tmp.path().to_path_buf(),
